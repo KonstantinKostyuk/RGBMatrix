@@ -5,8 +5,8 @@
 
 #include <avr/pgmspace.h>
 #include <ctype.h>
+#include <SPI.h>
 #include "RGBMatrix.h"
-#include "WProgram.h"
 #include "RGB.h"
 
 //A screen struct contains a character array of size 64. Each position in the array
@@ -45,14 +45,17 @@ void cRGBMatrix::begin(int num_boards)
 {
 	_num_boards=num_boards;
     //SPI Bus setup
-    SPCR = (1<<SPE)|(1<<MSTR)|(1<<SPR1)|(1<<SPR0);	//Enable SPI HW, Master Mode, divide clock by 16    //SPI Bus setup
-	//SPCR = (1<<SPE)|(1<<MSTR)|(1<<SPR1);	//Enable SPI HW, Master Mode, divide clock by 16    //SPI Bus setup
-    
+    //SPCR = (1<<SPE)|(1<<MSTR)|(1<<SPR1)|(1<<SPR0);	//Enable SPI HW, Master Mode, divide clock by 16    //SPI Bus setup
     //Set the pin modes for the RGB matrix
     pinMode(DATAOUT, OUTPUT);
     pinMode(DATAIN, INPUT);
     pinMode(SPICLOCK,OUTPUT);
-    pinMode(SLAVESELECT,OUTPUT);	
+    pinMode(SLAVESELECT,OUTPUT);
+	
+	SPI.begin();
+    SPI.setBitOrder(MSBFIRST);
+    SPI.setClockDivider(SPI_CLOCK_DIV32); // or 2, 8, 16, 32, 64
+    //SPI.setDataMode(SPI_MODE0);	
 	
 	//Make sure the RGB matrix is deactivated
     digitalWrite(SLAVESELECT,HIGH); 		
@@ -75,11 +78,14 @@ void cRGBMatrix::begin(int num_boards)
 */
 char cRGBMatrix::spiTransfer(char value)
 {
-    SPDR = value;                    // Start the transmission
+    /*
+	SPDR = value;                    // Start the transmission
     while (!(SPSR & (1<<SPIF)))     // Wait for the end of the transmission
     {
     };
     return SPDR;                    // return the received byte
+	*/
+	return SPI.transfer( value );
 }
 
 /*

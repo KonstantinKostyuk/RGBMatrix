@@ -7,7 +7,12 @@
 #define RGBMatrix_h
 
 #include <avr/pgmspace.h>
-#include "WProgram.h"
+#include <SPI.h>
+#if defined(ARDUINO) && ARDUINO >= 100
+#include <Arduino.h>
+#else
+#include <WProgram.h>
+#endif
 
 //Define the SPI Pin Numbers
 #define DATAOUT 11		//MOSI
